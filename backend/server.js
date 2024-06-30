@@ -38,6 +38,33 @@ app.post("/api/generate-post", async (req, res) => {
   }
 });
 
+app.post("/api/save-post", async (req, res) => {
+  const { prompt, post } = req.body;
+
+  try {
+    const response = await axios.post(
+      `https://sheets.googleapis.com/v4/spreadsheets/${process.env.GOOGLE_SHEET_ID}/values/A1:append`,
+      {
+        values: [[new Date().toISOString(), prompt, post]],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GOOGLE_API_KEY}`,
+        },
+        params: {
+          valueInputOption: "USER_ENTERED",
+        },
+      }
+    );
+
+    res.status(201).json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ err: "Error saving post!", error });
+  }
+});
+
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
 });
