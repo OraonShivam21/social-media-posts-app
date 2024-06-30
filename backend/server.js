@@ -65,6 +65,24 @@ app.post("/api/save-post", async (req, res) => {
   }
 });
 
+app.get("/api/get-posts", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://sheets.googleapis.com/v4/spreasheets/${process.env.GOOGLE_SHEET_ID}/values/Sheet1`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GOOGLE_API_KEY}`,
+        },
+      }
+    );
+
+    res.status(200).json(response.data.value);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ err: "Error fetching posts", error });
+  }
+});
+
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
 });
